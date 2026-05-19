@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniele & Ludovica - 2 Giugno 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-crema: #fdfaf3; --verde-salvia: #7d9178; --testo-antracite: #333333; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-crema); color: var(--testo-antracite); margin: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        .decor { position: fixed; width: 120px; height: 120px; background-size: contain; background-repeat: no-repeat; opacity: 0.12; z-index: -1; pointer-events: none; }
+        .decor-tl { top: 0; left: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); }
+        .decor-br { bottom: 0; right: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); transform: rotate(180deg); }
+        .header { text-align: center; margin-bottom: 30px; width: 100%; }
+        h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 8vw, 3.5rem); letter-spacing: 3px; margin: 0; text-transform: uppercase; font-weight: 300; }
+        .date { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; color: var(--verde-salvia); margin-top: 5px; }
+        .search-container { margin-bottom: 50px; z-index: 100; width: 100%; max-width: 400px; padding: 0 15px; text-align: center; }
+        input { padding: 12px 5px; width: 100%; border: none; border-bottom: 1px solid var(--verde-salvia); background: transparent; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; text-align: center; letter-spacing: 1px; outline: none; }
+        .sala { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .tavolo-sposi { width: 85%; max-width: 350px; height: 60px; border: 0.5px solid var(--verde-salvia); display: flex; align-items: center; justify-content: center; margin-bottom: 80px; background: white; }
+        .tavolo-sposi span { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4.5vw, 1.4rem); letter-spacing: 3px; text-transform: uppercase; color: var(--verde-salvia); }
+        .mappa-tavoli { display: flex; flex-direction: column; align-items: center; gap: 90px; width: 100%; padding-bottom: 60px; }
+        @media (min-width: 768px) { .mappa-tavoli { flex-direction: row; justify-content: center; align-items: flex-start; gap: clamp(40px, 5vw, 100px); } }
+        .tavolo-verticale { position: relative; width: 45px; border: 0.5px solid var(--verde-salvia); background: white; margin-top: 40px; }
+        .label-tavolo { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--testo-antracite); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase; }
+        .seat { position: absolute; width: 14px; height: 14px; background: #e8e8e8; border-radius: 50%; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
+        .seat:hover, .seat.active-visible { background: var(--verde-salvia); transform: scale(1.2); z-index: 100; }
+        .seat-label { position: absolute; display: none; background: var(--verde-salvia); color: white; padding: 6px 10px; font-size: 9px; line-height: 1.3; text-align: center; width: 100px; left: 50%; transform: translateX(-50%); top: -45px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.12); pointer-events: none; border-radius: 2px; }
+        .seat:hover .seat-label, .seat.active-visible .seat-label { display: block; }
+        footer { margin: 30px 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="decor decor-tl"></div>
+    <div class="decor decor-br"></div>
+    <div class="header">
+        <h1>Daniele & Ludovica</h1>
+        <span class="date">2 Giugno 2026</span>
+    </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="CERCA IL TUO NOME..." oninput="cercaInvitato()">
+    </div>
+    <div class="sala">
+        <div class="tavolo-sposi"><span>Daniele & Ludovica</span></div>
+        <div class="mappa-tavoli" id="mappa"></div>
+    </div>
+    <footer>Per sempre insieme</footer>
+
+    <script>
+        let invitati = [];
+        const mappa = document.getElementById('mappa');
+        let timerScomparsa;
+
+        const configurazioneTavoli = {
+            1: 53, 
+            2: 50, 
+            3: 52  
+        };
+
+        // ============================================================
+        // TU COPIA DA EXCEL E INCOLLA DIRETTAMENTE QUI DENTRO.
+        // Puoi incollarlo sia con le virgole che con i punti e virgola.
+        // NON SERVONO FORMULE, PARENTESI GRAFFE O APICI RIGA PER RIGA!
+        // ============================================================
+        const datiInvitatiRaw = `
+AMEDEO SILLA;1;1
+LUCIA SERAFINI;1;2
+GUIDO SILLA;1;3
+SABRINA BASILE;1;4
+LUISA LUPI;1;5
+MONICA D'IPPOLITO;1;6
+MICHELA SERAFINI;1;7
+ENRICO DELLA ROCCA;1;8
+COSTANZA MANCUSO;1;9
+STEFANO DI FRANCO;1;10
+GIULIA SERAFINI;1;11
+ANTONIO SPACONE;1;12
+DONATELLA SERAFINI;1;13
+ELEONORA TARULLO;1;14
+ORAZIO TARULLO;1;15
+DANIELA SERAFINI;1;16
+ANNAMARIA SUSI;1;17
+GIUSEPPE SERAFINI;1;18
+MAURA CIOCCA;1;19
+PAOLO CIOCCA;1;20
+ANNAMARIA COLANERI;1;21
+TERESA LAVILLOTTI;1;22
+ITALIA ALFIERI;1;23
+GRAZIANO SERAFINI;1;24
+EGIDIO SERAFINI;1;25
+GIUSEPPE SERAFINI;1;26
+MIRELLA SCHIAZZA;1;27
+GIANNI FRONTEROTTA;1;28
+SILVIA PAULONE;1;29
+LUIGI FRONTEROTTA;1;30
+MATILDE DI BARTOLOMEO;1;31
+DAVIDE GIAMMARCO;1;32
+BARBARA GENTILE;1;33
+ANGELO SPACONE;1;34
+MARIA FRATINI;1;35
+FRANCESCO LAVILLOTTI;1;36
+CRISTINA DEL MONACO;1;37
+ANNAMARIA PISCIOTTI;1;38
+PALMINA GAVITA;1;39
+VALENTINO DI CESARE;1;40
+IDA MASTROGIOVANNI;1;41
+LOREDANA RONCONE;1;42
+MAURIZIO RONCONE;1;43
+ALBERTO TARULLO;1;44
+CARMELA CIANCARELLI;1;45
+EUSTACHIO DI BARTOLOMEO;1;46
+LEONARDO SILLA;1;47
+AGNESE SILLA;1;48
+FLAVIO GATTA;1;49
+FLAVIA DI FRANCO;1;50
+FLAMINIA DI FRANCO;1;51
+SIMONE SERAFINI;1;52
+STEFANO SERAFINI;1;53
+VINCENZO MARINELLI;3;1
+MARIA MONTECCHIA;3;2
+TIZIANO MARINELLI;3;3
+EMILIA CAPRIOTTI;3;4
+ROSSANA MARINELLI;3;5
+TIZIANO CORDONI;3;6
+FRANCESCHINA MARINELLI;3;7
+CHIARA DI FRANCESCO;3;8
+ANTONIO PICCIONI;3;9
+BEATRICE MONTECCHIA;3;10
+OLIVIERI ARCANGELO;3;11
+NAVINA ALGENJ;3;12
+FRANCO MONTECCHIA;3;13
+FERNANDO MONTECCHIA;3;14
+EVELINA SCARTOZZI;3;15
+MARISA DI MARCO;3;16
+PATRIZIA DI FRANCESCO;3;17
+MARCELLO CIALANI;3;18
+PAVINA STUPPINI;3;19
+GIUSEPPE DI LUIGI;3;20
+MARIA MATALUCCI;3;21
+MIRELLA DI MARTINO;3;22
+ALESSANDRA DI GIAMMATTEO;3;23
+FABRIZIO GRIFONI;3;24
+CELLINI CRISTIANO;3;25
+ENRICO MARCHESANI;3;26
+ALESSIA PICCIONI;3;27
+EDOARDO MARCHESANI;3;28
+DIANA MARINELLI;3;29
+ANDREA DI GIAMMATTEO;3;30
+ALLEGRA DI GIAMMATTEO;3;31
+DAVIDE CORDONI;3;32
+INES MARIE CORDONI;3;33
+GIANLUCA MARINELLI;3;34
+PAMELA MIRANDI;3;35
+NICCOLO' GUERRIERI;3;36
+DANILO GUERRIERI;3;37
+DEBORAH MARINELLI;3;38
+FABIO OLIVIERI;3;39
+FABRIZIA DI UBALDO;3;40
+CAMILLO OLIVIERI;3;41
+MIRIANA OLIVIERI;3;42
+ROMINA PAOLETTI;3;43
+STEFANIA CIALANI;3;44
+BARBARA CIALANI;3;45
+AURORA CORDONI;3;46
+ANTONIO DI FELICE;3;47
+VIVIANA CORDONI;3;48
+ROBERTO MIRTI;3;49
+ARON ROCCHETTI;3;50
+TOMMASO DI FELICE;3;51
+LUCA DI FELICE;3;52
+        `;
+        // ============================================================
+
+        function inizializzaTableau() {
+            try {
+                const righe = datiInvitatiRaw.split('\n');
+                const separatore = datiInvitatiRaw.includes(';') ? ';' : ',';
+
+                invitati = righe.map(riga => {
+                    const rigaPulita = riga.trim();
+                    if (!rigaPulita) return null;
+
+                    const col = rigaPulita.split(separatore);
+                    if (col.length >= 3) {
+                        const nome = col[0].trim().toUpperCase();
+                        const tavolo = parseInt(col[1].trim());
+                        const sedia = parseInt(col[2].trim());
+
+                        // Se tavolo e sedia sono numeri veri, salva l'invitato
+                        if (!isNaN(tavolo) && !isNaN(sedia)) {
+                            return { nome, tavolo, sedia };
+                        }
+                    }
+                    return null;
+                }).filter(i => i !== null);
+
+            } catch (e) {
+                console.error("Errore lettura dati:", e);
+            }
+            // Genera SEMPRE i tavoli, così la grafica non scompare mai
+            generaMappa(); 
+        }
+
+        function generaMappa() {
+            mappa.innerHTML = '';
+            
+            Object.keys(configurazioneTavoli).forEach(tavoloId => {
+                const t = parseInt(tavoloId);
+                const sedieTotali = configurazioneTavoli[t];
+                
+                let tDiv = document.createElement('div');
+                tDiv.className = 'tavolo-verticale';
+                tDiv.id = `tavolo-${t}`;
+                tDiv.innerHTML = `<div class="label-tavolo">TAVOLO ${t}</div>`;
+                
+                const numeroCoppie = Math.ceil(sedieTotali / 2);
+                const altezzaTavolo = numeroCoppie * 24 + 20; 
+                tDiv.style.height = `${altezzaTavolo}px`;
+                
+                for (let s = 1; s <= sedieTotali; s++) {
+                    let sDiv = document.createElement('div');
+                    sDiv.className = 'seat';
+                    sDiv.id = `sedia-${t}-${s}`;
+                    
+                    let isDispari = s % 2 !== 0;
+                    let lato = isDispari ? 'left: -18px' : 'right: -18px';
+                    
+                    let rigaSedia = isDispari ? Math.ceil(s / 2) : (s / 2);
+                    let posV = (rigaSedia - 1) * 24 + 10; 
+                    
+                    sDiv.style.cssText = `${lato}; top: ${posV}px;`;
+                    
+                    const inv = invitati.find(i => i.tavolo === t && i.sedia === s);
+                    const nomeT = inv ? inv.nome.replace(" ", "<br>") : "Libero";
+                    sDiv.innerHTML = `<div class="seat-label">${nomeT}</div>`;
+                    
+                    sDiv.addEventListener('click', function(e) {
+                        e.stopPropagation(); 
+                        clearTimeout(timerScomparsa);
+                        document.querySelectorAll('.seat').forEach(x => x.classList.remove('active-visible'));
+                        this.classList.add('active-visible');
+                        timerScomparsa = setTimeout(() => this.classList.remove('active-visible'), 4000);
+                    });
+                    tDiv.appendChild(sDiv);
+                }
+                mappa.appendChild(tDiv);
+            });
+        }
+
+        document.body.addEventListener('click', function() {
+            document.querySelectorAll('.seat').forEach(x => x.classList.remove('active-visible'));
+        });
+
+        function cercaInvitato() {
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('active-visible'));
+            if(q.length < 3) return;
+            const trovati = invitati.filter(i => i.nome.toLowerCase().includes(q));
+            if (trovati.length > 0) {
+                trovati.forEach(inv => {
+                    const sedia = document.getElementById(`sedia-${inv.tavolo}-${inv.sedia}`);
+                    if(sedia) sedia.classList.add('active-visible');
+                });
+                document.getElementById(`tavolo-${trovati[0].tavolo}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        inizializzaTableau();
+    </script>
+</body>
+</html>
