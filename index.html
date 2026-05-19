@@ -9,25 +9,70 @@
         :root { --bg-crema: #fdfaf3; --verde-salvia: #7d9178; --testo-antracite: #333333; }
         * { box-sizing: border-box; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-crema); color: var(--testo-antracite); margin: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        
         .decor { position: fixed; width: 120px; height: 120px; background-size: contain; background-repeat: no-repeat; opacity: 0.12; z-index: -1; pointer-events: none; }
         .decor-tl { top: 0; left: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); }
         .decor-br { bottom: 0; right: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); transform: rotate(180deg); }
+        
         .header { text-align: center; margin-bottom: 30px; width: 100%; }
         h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 8vw, 3.5rem); letter-spacing: 3px; margin: 0; text-transform: uppercase; font-weight: 300; }
         .date { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; color: var(--verde-salvia); margin-top: 5px; }
+        
         .search-container { margin-bottom: 50px; z-index: 100; width: 100%; max-width: 400px; padding: 0 15px; text-align: center; }
         input { padding: 12px 5px; width: 100%; border: none; border-bottom: 1px solid var(--verde-salvia); background: transparent; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; text-align: center; letter-spacing: 1px; outline: none; }
+        
         .sala { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .tavolo-sposi { width: 85%; max-width: 350px; height: 60px; border: 0.5px solid var(--verde-salvia); display: flex; align-items: center; justify-content: center; margin-bottom: 80px; background: white; }
         .tavolo-sposi span { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4.5vw, 1.4rem); letter-spacing: 3px; text-transform: uppercase; color: var(--verde-salvia); }
+        
         .mappa-tavoli { display: flex; flex-direction: column; align-items: center; gap: 90px; width: 100%; padding-bottom: 60px; }
         @media (min-width: 768px) { .mappa-tavoli { flex-direction: row; justify-content: center; align-items: flex-start; gap: clamp(40px, 5vw, 100px); } }
+        
         .tavolo-verticale { position: relative; width: 45px; border: 0.5px solid var(--verde-salvia); background: white; margin-top: 40px; }
         .label-tavolo { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--testo-antracite); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase; }
+        
         .seat { position: absolute; width: 14px; height: 14px; background: #e8e8e8; border-radius: 50%; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
         .seat:hover, .seat.active-visible { background: var(--verde-salvia); transform: scale(1.2); z-index: 100; }
-        .seat-label { position: absolute; display: none; background: var(--verde-salvia); color: white; padding: 6px 10px; font-size: 9px; line-height: 1.3; text-align: center; width: 100px; left: 50%; transform: translateX(-50%); top: -45px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.12); pointer-events: none; border-radius: 2px; }
+        
+        /* NUOVO ETICHETTA LATERALE ADATTIVA */
+        .seat-label { 
+            position: absolute; 
+            display: none; 
+            background: var(--verde-salvia); 
+            color: white; 
+            padding: 8px 10px; 
+            font-size: 10px; 
+            line-height: 1.4; 
+            text-align: center; 
+            width: 110px; 
+            top: 50%;
+            transform: translateY(-50%); /* Centrato verticalmente rispetto al pallino */
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            pointer-events: none; 
+            border-radius: 4px; 
+            z-index: 999;
+        }
+        
+        /* Se il pallino è a sinistra, il fumetto va ancora più a sinistra */
+        .seat-sinistra .seat-label { right: 24px; }
+        /* Se il pallino è a destra, il fumetto va ancora più a destra */
+        .seat-destra .seat-label { left: 24px; }
+        
         .seat:hover .seat-label, .seat.active-visible .seat-label { display: block; }
+        
+        /* Stile per il piccolo numero della sedia nel fumetto */
+        .seat-label small { 
+            display: block; 
+            margin-top: 4px; 
+            opacity: 0.85; 
+            font-size: 8px; 
+            border-top: 0.5px solid rgba(255,255,255,0.3); 
+            padding-top: 3px; 
+            letter-spacing: 0.5px;
+        }
+        
         footer { margin: 30px 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; opacity: 0.5; }
     </style>
 </head>
@@ -59,9 +104,7 @@
         };
 
         // ============================================================
-        // TU COPIA DA EXCEL E INCOLLA DIRETTAMENTE QUI DENTRO.
-        // Puoi incollarlo sia con le virgole che con i punti e virgola.
-        // NON SERVONO FORMULE, PARENTESI GRAFFE O APICI RIGA PER RIGA!
+        // INCOLLA QUI IL TUO ELENCO DI BLOCCO NOTE
         // ============================================================
         const datiInvitatiRaw = `
 AMEDEO SILLA;1;1
@@ -187,7 +230,6 @@ LUCA DI FELICE;3;52
                         const tavolo = parseInt(col[1].trim());
                         const sedia = parseInt(col[2].trim());
 
-                        // Se tavolo e sedia sono numeri veri, salva l'invitato
                         if (!isNaN(tavolo) && !isNaN(sedia)) {
                             return { nome, tavolo, sedia };
                         }
@@ -198,7 +240,6 @@ LUCA DI FELICE;3;52
             } catch (e) {
                 console.error("Errore lettura dati:", e);
             }
-            // Genera SEMPRE i tavoli, così la grafica non scompare mai
             generaMappa(); 
         }
 
@@ -224,23 +265,36 @@ LUCA DI FELICE;3;52
                     sDiv.id = `sedia-${t}-${s}`;
                     
                     let isDispari = s % 2 !== 0;
-                    let lato = isDispari ? 'left: -18px' : 'right: -18px';
+                    
+                    // Assegna la classe laterale per decidere dove far spuntare il fumetto
+                    if (isDispari) {
+                        sDiv.classList.add('seat-sinistra');
+                        sDiv.style.left = '-18px';
+                    } else {
+                        sDiv.classList.add('seat-destra');
+                        sDiv.style.right = '-18px';
+                    }
                     
                     let rigaSedia = isDispari ? Math.ceil(s / 2) : (s / 2);
                     let posV = (rigaSedia - 1) * 24 + 10; 
-                    
-                    sDiv.style.cssText = `${lato}; top: ${posV}px;`;
+                    sDiv.style.top = `${posV}px`;
                     
                     const inv = invitati.find(i => i.tavolo === t && i.sedia === s);
-                    const nomeT = inv ? inv.nome.replace(" ", "<br>") : "Libero";
-                    sDiv.innerHTML = `<div class="seat-label">${nomeT}</div>`;
+                    
+                    // Se il posto è occupato mostra Nome + Numero Sedia, altrimenti scrive "Libero"
+                    if (inv) {
+                        const nomeFormattato = inv.nome.replace(" ", "<br>");
+                        sDiv.innerHTML = `<div class="seat-label">${nomeFormattato}<small>SEDIA ${s}</small></div>`;
+                    } else {
+                        sDiv.innerHTML = `<div class="seat-label">LIBERO<small>SEDIA ${s}</small></div>`;
+                    }
                     
                     sDiv.addEventListener('click', function(e) {
                         e.stopPropagation(); 
                         clearTimeout(timerScomparsa);
                         document.querySelectorAll('.seat').forEach(x => x.classList.remove('active-visible'));
                         this.classList.add('active-visible');
-                        timerScomparsa = setTimeout(() => this.classList.remove('active-visible'), 4000);
+                        timerScomparsa = setTimeout(() => this.classList.remove('active-visible'), 5000); // Rimane visibile 5 secondi
                     });
                     tDiv.appendChild(sDiv);
                 }
@@ -253,10 +307,16 @@ LUCA DI FELICE;3;52
         });
 
         function cercaInvitato() {
-            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            const barraRicerca = document.getElementById('searchInput').value.toLowerCase().trim();
             document.querySelectorAll('.seat').forEach(s => s.classList.remove('active-visible'));
-            if(q.length < 3) return;
-            const trovati = invitati.filter(i => i.nome.toLowerCase().includes(q));
+            if(barraRicerca.length < 3) return;
+            
+            const paroleCercate = barraRicerca.split(/\s+/);
+            const trovati = invitati.filter(invitato => {
+                const nomeCompleto = invitato.nome.toLowerCase();
+                return paroleCercate.every(parola => nomeCompleto.includes(parola));
+            });
+            
             if (trovati.length > 0) {
                 trovati.forEach(inv => {
                     const sedia = document.getElementById(`sedia-${inv.tavolo}-${inv.sedia}`);
