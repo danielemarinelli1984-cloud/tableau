@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniele & Ludovica - 2 Giugno 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-crema: #fdfaf3; --verde-salvia: #7d9178; --testo-antracite: #333333; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-crema); color: var(--testo-antracite); margin: 0; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        
+        .decor { position: fixed; width: 120px; height: 120px; background-size: contain; background-repeat: no-repeat; opacity: 0.12; z-index: -1; pointer-events: none; }
+        .decor-tl { top: 0; left: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); }
+        .decor-br { bottom: 0; right: 0; background-image: url('https://www.svgrepo.com/show/36555/leaves.svg'); filter: sepia(20%) hue-rotate(50deg) saturate(50%); transform: rotate(180deg); }
+        
+        .header { text-align: center; margin-bottom: 30px; width: 100%; }
+        h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 8vw, 3.5rem); letter-spacing: 3px; margin: 0; text-transform: uppercase; font-weight: 300; }
+        .date { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; color: var(--verde-salvia); margin-top: 5px; }
+        
+        .search-container { margin-bottom: 50px; z-index: 100; width: 100%; max-width: 400px; padding: 0 15px; display: flex; gap: 10px; align-items: center; }
+        input { flex: 1; padding: 12px 5px; border: none; border-bottom: 1px solid var(--verde-salvia); background: transparent; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; letter-spacing: 1px; outline: none; text-transform: uppercase; }
+        
+        .search-btn { 
+            padding: 10px 18px; 
+            background-color: var(--verde-salvia); 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 0.85rem; 
+            letter-spacing: 1px; 
+            cursor: pointer; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .sala { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 350px; }
+        
+        .tavolo-sposi { width: 85%; max-width: 350px; height: 60px; border: 0.5px solid var(--verde-salvia); display: flex; align-items: center; justify-content: center; margin-bottom: 80px; background: white; }
+        .tavolo-sposi span { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4.5vw, 1.4rem); letter-spacing: 3px; text-transform: uppercase; color: var(--verde-salvia); }
+        
+        .mappa-tavoli { display: flex; flex-direction: column; align-items: center; gap: 90px; width: 100%; }
+        @media (min-width: 768px) { .mappa-tavoli { flex-direction: row; justify-content: center; align-items: flex-start; gap: clamp(40px, 5vw, 100px); } }
+        
+        .tavolo-verticale { position: relative; width: 45px; border: 0.5px solid var(--verde-salvia); background: white; margin-top: 40px; }
+        .label-tavolo { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--testo-antracite); white-space: nowrap; letter-spacing: 2px; text-transform: uppercase; }
+        
+        .seat { position: absolute; width: 14px; height: 14px; background: #e8e8e8; border-radius: 50%; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
+        .seat.active-visible { background: var(--verde-salvia); transform: scale(1.2); z-index: 100; }
+        
+        .seat-label { 
+            position: absolute; 
+            display: none; 
+            background: var(--verde-salvia); 
+            color: white; 
+            padding: 8px 10px; 
+            font-size: 10px; 
+            line-height: 1.4; 
+            text-align: center; 
+            width: 110px; 
+            top: 50%;
+            transform: translateY(-50%); 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            pointer-events: none; 
+            border-radius: 4px; 
+            z-index: 999;
+        }
+        
+        .seat-sinistra .seat-label { right: 24px; }
+        .seat-destra .seat-label { left: 24px; }
+        
+        .seat.active-visible .seat-label { display: block !important; }
+        
+        .seat-label small { 
+            display: block; 
+            margin-top: 4px; 
+            opacity: 0.85; 
+            font-size: 8px; 
+            border-top: 0.5px solid rgba(255,255,255,0.3); 
+            padding-top: 3px; 
+            letter-spacing: 0.5px;
+        }
+        
+        footer { margin: 30px 0; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="decor decor-tl"></div>
+    <div class="decor decor-br"></div>
+    <div class="header">
+        <h1>Daniele & Ludovica</h1>
+        <span class="date">2 Giugno 2026</span>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="CERCA IL TUO NOME..." onkeydown="if(event.key === 'Enter') eseguiRicerca()">
+        <button class="search-btn" onclick="eseguiRicerca()">CERCA</button>
+    </div>
+    
+    <div class="sala">
+        <div class="tavolo-sposi"><span>Daniele & Ludovica</span></div>
+        <div class="mappa-tavoli" id="mappa"></div>
+    </div>
+    <footer>Per sempre insieme</footer>
+
+    <script>
+        let invitati = [];
+        const mappa = document.getElementById('mappa');
+
+        const configurazioneTavoli = {
+            1: 53, 
+            2: 50, 
+            3: 52  
+        };
+
+        // ============================================================
+        // INCOLLA QUI IL TUO ELENCO DA BLOCCO NOTE
+        // ============================================================
+        const datiInvitatiRaw = `
+MARIO ROSSI,1,53
+LUIGI BIANCHI,3,52
+ANNA VERDI,1,1
+GIUSEPPE NERI,1,2
+        `;
+        // ============================================================
+
+        function inizializzaTableau() {
+            try {
+                const separatore = datiInvitatiRaw.includes(';') ? ';' : ',';
+                const righe = datiInvitatiRaw.split('\n');
+
+                invitati = righe.map(riga => {
+                    const rigaPulita = riga.trim();
+                    if (!rigaPulita) return null;
+
+                    const col = rigaPulita.split(separatore);
+                    if (col.length >= 3) {
+                        const nome = col[0].trim().toUpperCase();
+                        const tavolo = parseInt(col[1].trim());
+                        const sedia = parseInt(col[2].trim());
+
+                        if (!isNaN(tavolo) && !isNaN(sedia)) {
+                            return { nome, tavolo, sedia };
+                        }
+                    }
+                    return null;
+                }).filter(i => i !== null);
+
+            } catch (e) {
+                console.error("Errore dati:", e);
+            }
+            generaMappa(); 
+        }
+
+        function generaMappa() {
+            mappa.innerHTML = '';
+            
+            Object.keys(configurazioneTavoli).forEach(tavoloId => {
+                const t = parseInt(tavoloId);
+                const sedieTotali = configurazioneTavoli[t];
+                
+                let tDiv = document.createElement('div');
+                tDiv.className = 'tavolo-verticale';
+                tDiv.id = `tavolo-${t}`;
+                tDiv.innerHTML = `<div class="label-tavolo">TAVOLO ${t}</div>`;
+                
+                const numeroCoppie = Math.ceil(sedieTotali / 2);
+                const altezzaTavolo = numeroCoppie * 24 + 20; 
+                tDiv.style.height = `${altezzaTavolo}px`;
+                
+                for (let s = 1; s <= sedieTotali; s++) {
+                    let sDiv = document.createElement('div');
+                    sDiv.className = 'seat';
+                    sDiv.id = `sedia-${t}-${s}`;
+                    
+                    let isDispari = s % 2 !== 0;
+                    
+                    if (isDispari) {
+                        sDiv.classList.add('seat-sinistra');
+                        sDiv.style.left = '-18px';
+                    } else {
+                        sDiv.classList.add('seat-destra');
+                        sDiv.style.right = '-18px';
+                    }
+                    
+                    let rigaSedia = isDispari ? Math.ceil(s / 2) : (s / 2);
+                    let posV = (rigaSedia - 1) * 24 + 10; 
+                    sDiv.style.top = `${posV}px`;
+                    
+                    const inv = invitati.find(i => i.tavolo === t && i.sedia === s);
+                    
+                    if (inv) {
+                        const nomeFormattato = inv.nome.replace(" ", "<br>");
+                        sDiv.innerHTML = `<div class="seat-label">${nomeFormattato}<small>TAVOLO ${t}</small></div>`;
+                    } else {
+                        sDiv.innerHTML = `<div class="seat-label">LIBERO<small>TAVOLO ${t}</small></div>`;
+                    }
+                    
+                    sDiv.addEventListener('click', function() {
+                        if (this.classList.contains('active-visible')) {
+                            this.classList.remove('active-visible');
+                        } else {
+                            document.querySelectorAll('.seat').forEach(x => x.classList.remove('active-visible'));
+                            this.classList.add('active-visible');
+                        }
+                    });
+                    tDiv.appendChild(sDiv);
+                }
+                mappa.appendChild(tDiv);
+            });
+        }
+
+        function eseguiRicerca() {
+            const barraRicerca = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('active-visible'));
+            
+            if(barraRicerca.length < 2) return;
+            
+            const paroleCercate = barraRicerca.split(/\s+/);
+            const trovati = invitati.filter(invitato => {
+                const nomeCompleto = invitato.nome.toLowerCase();
+                return paroleCercate.every(parola => nomeCompleto.includes(parola));
+            });
+            
+            if (trovati.length > 0) {
+                trovati.forEach(inv => {
+                    const sedia = document.getElementById(`sedia-${inv.tavolo}-${inv.sedia}`);
+                    if(sedia) {
+                        sedia.classList.add('active-visible');
+                    }
+                });
+                
+                const primoTavolo = document.getElementById(`tavolo-${trovati[0].tavolo}`);
+                if (primoTavolo) {
+                    primoTavolo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                document.getElementById('searchInput').blur();
+            }
+        }
+        inizializzaTableau();
+    </script>
+</body>
+</html>
