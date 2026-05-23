@@ -34,7 +34,8 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .sala { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 350px; }
+        /* AUMENTATO LO SPAZIO IN FONDO PER PERMETTERE AL TELEFONO DI SCORRERE OLTRE IL TAVOLO 3 */
+        .sala { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 550px; }
         
         .tavolo-sposi { width: 85%; max-width: 350px; height: 60px; border: 0.5px solid var(--verde-salvia); display: flex; align-items: center; justify-content: center; margin-bottom: 80px; background: white; }
         .tavolo-sposi span { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 4.5vw, 1.4rem); letter-spacing: 3px; text-transform: uppercase; color: var(--verde-salvia); }
@@ -109,7 +110,6 @@
         let invitati = [];
         const mappa = document.getElementById('mappa');
 
-        // NUOVA CONFIGURAZIONE AGGIORNATA
         const configurazioneTavoli = {
             1: 54, 
             2: 54, 
@@ -383,17 +383,21 @@ LUCA DI FELICE;3;52
             });
             
             if (trovati.length > 0) {
-                trovati.forEach(inv => {
+                let primaSediaTrovata = null;
+
+                trovati.forEach((inv, index) => {
                     const sedia = document.getElementById(`sedia-${inv.tavolo}-${inv.sedia}`);
                     if(sedia) {
                         sedia.classList.add('active-visible');
+                        if (index === 0) primaSediaTrovata = sedia;
                     }
                 });
                 
-                const primoTavolo = document.getElementById(`tavolo-${trovati[0].tavolo}`);
-                if (primoTavolo) {
-                    primoTavolo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // MODIFICA: Ora lo schermo punta direttamente sulla sedia specifica e la mette al centro esatto
+                if (primaSediaTrovata) {
+                    primaSediaTrovata.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                
                 document.getElementById('searchInput').blur();
             }
         }
